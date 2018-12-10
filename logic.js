@@ -6,6 +6,10 @@ const cloneEntity = (file, entityId) => {
     if (err) {
       throw err;
     } else {
+      if (!data) {
+        console.log("data does not exist");
+        return;
+      }
       let parseData = JSON.parse(data);
       let entities = parseData.entities;
       let links = parseData.links;

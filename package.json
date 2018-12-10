@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "CLI for cloning entities from JSON",
   "main": "index.js",
+  "preferGlobal": true,
+  "bin": "./clone.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
