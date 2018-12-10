@@ -1,5 +1,28 @@
 const fs = require("fs");
 
+// Loop through links to create a hashmap of link relationships
+let createLinkMap = links => {
+  let linkMap = {};
+  for (let link of links) {
+    if (!linkMap[link.from]) {
+      linkMap[link.from] = [link.to];
+    } else {
+      linkMap[link.from].push(link.to);
+    }
+  }
+  return linkMap;
+};
+// Loop through links to create list of links to point to new clone
+let createLinksToInit = (links, id) => {
+  let linksToInitial = [];
+  for (let link of links) {
+    if (link.to === id) {
+      linksToInitial.push(link.from);
+    }
+  }
+  return linksToInitial;
+};
+
 const cloneEntity = (file, entityId) => {
   // Read input file
   fs.readFile(file, "utf8", (err, data) => {
@@ -15,20 +38,9 @@ const cloneEntity = (file, entityId) => {
       let links = parseData.links;
       let id = JSON.parse(entityId);
 
-      let linkMap = {};
+      let linkMap = createLinkMap(links);
       // links to original must also point to clone
-      let linksToInitial = [];
-      // Loop through links to create a hashmap of link relationships
-      for (let link of links) {
-        if (link.to === id) {
-          linksToInitial.push(link.from);
-        }
-        if (!linkMap[link.from]) {
-          linkMap[link.from] = [link.to];
-        } else {
-          linkMap[link.from].push(link.to);
-        }
-      }
+      let linksToInitial = createLinksToInit(links, id);
 
       let linksToAdd = [];
       // seen prevents loops
@@ -59,8 +71,8 @@ const cloneEntity = (file, entityId) => {
         // Make translation
         translate[entity.entity_id] = nextId;
         entity.entity_id = nextId;
-        entities.push(entity);
         nextId += 1;
+        entities.push(entity);
       }
 
       // Create links for new entities
@@ -98,3 +110,5 @@ const cloneEntity = (file, entityId) => {
 };
 
 module.exports.cloneEntity = cloneEntity;
+module.exports.createLinkMap = createLinkMap;
+module.exports.createLinksToInit = createLinksToInit;
