@@ -42,14 +42,18 @@ const cloneEntity = (file, entityId) => {
       // links to original must also point to clone
       let linksToInitial = createLinksToInit(links, id);
 
-      let linksToAdd = [];
+      let linksToAdd = [id];
       // seen prevents loops
       let seen = {};
       // Follow links and create list of entities that need their links translated
-      while (!seen[id] && linkMap[id]) {
-        linksToAdd = [...linksToAdd, ...linkMap[id]];
+      while (linksToAdd.length > 0) {
+        linksToAdd = linkMap[id]
+          ? [...linksToAdd, ...linkMap[id]]
+          : [linksToAdd];
         seen[id] = true;
-        id = linksToAdd.pop();
+        while (seen[id]) {
+          id = linksToAdd.pop();
+        }
       }
 
       let entitiesToAdd = [];
@@ -78,11 +82,13 @@ const cloneEntity = (file, entityId) => {
       // Create links for new entities
       for (let originalFrom in seen) {
         let from = translate[originalFrom];
-        for (let originalLink of linkMap[originalFrom]) {
-          links.push({
-            from,
-            to: translate[originalLink]
-          });
+        if (linkMap[originalFrom]) {
+          for (let originalLink of linkMap[originalFrom]) {
+            links.push({
+              from,
+              to: translate[originalLink]
+            });
+          }
         }
       }
       // Point originals to clone of input entity
